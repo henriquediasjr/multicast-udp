@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, type PropType } from 'vue';
+import { computed } from 'vue';
 
 const appointmentStatuses = [
     'scheduled',
@@ -12,6 +12,12 @@ const appointmentStatuses = [
 
 type AppointmentStatus = (typeof appointmentStatuses)[number];
 
+interface Props {
+    status: AppointmentStatus;
+    appointmentTime: string;
+    compact?: boolean;
+}
+
 const statusLabels: Record<AppointmentStatus, string> = {
     scheduled: 'Scheduled',
     'checked-in': 'Checked In',
@@ -21,21 +27,8 @@ const statusLabels: Record<AppointmentStatus, string> = {
     'no-show': 'No Show',
 };
 
-const props = defineProps({
-    status: {
-        type: String as PropType<AppointmentStatus>,
-        required: true,
-        validator: (value: string) =>
-            appointmentStatuses.includes(value as AppointmentStatus),
-    },
-    appointmentTime: {
-        type: String,
-        required: true,
-    },
-    compact: {
-        type: Boolean,
-        default: false,
-    },
+const props = withDefaults(defineProps<Props>(), {
+    compact: false,
 });
 
 const emit = defineEmits<{
