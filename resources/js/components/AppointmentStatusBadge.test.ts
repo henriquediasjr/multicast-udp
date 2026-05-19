@@ -20,7 +20,7 @@ describe('AppointmentStatusBadge', () => {
             },
         });
 
-        expect(wrapper.text()).toContain('Checked In');
+        expect(wrapper.get('[role="status"]').text()).toContain('Checked In');
     });
 
     it('appends Soon when status is scheduled and appointmentTime is within 15 minutes', () => {
@@ -36,7 +36,7 @@ describe('AppointmentStatusBadge', () => {
             },
         });
 
-        expect(wrapper.text()).toContain('Soon');
+        expect(wrapper.get('[role="status"]').text()).toContain('Soon');
     });
 
     it('does not append Soon when appointmentTime is more than 15 minutes away', () => {
@@ -52,7 +52,7 @@ describe('AppointmentStatusBadge', () => {
             },
         });
 
-        expect(wrapper.text()).not.toContain('Soon');
+        expect(wrapper.get('[role="status"]').text()).not.toContain('Soon');
     });
 
     it('emits click event with status string when badge is clicked', async () => {
@@ -64,8 +64,26 @@ describe('AppointmentStatusBadge', () => {
             },
         });
 
-        await wrapper.trigger('click');
+        await wrapper.get('button').trigger('click');
 
         expect(wrapper.emitted('click')?.[0]?.[0]).toBe(status);
+    });
+
+    it('keeps compact badges accessible with tooltip and labels', () => {
+        const wrapper = mount(AppointmentStatusBadge, {
+            props: {
+                status: 'completed',
+                appointmentTime: '2099-01-01T12:00:00.000Z',
+                compact: true,
+            },
+        });
+
+        const button = wrapper.get('button');
+        const badge = wrapper.get('[role="status"]');
+
+        expect(button.attributes('aria-label')).toBe('Appointment status: Completed');
+        expect(badge.attributes('title')).toBe('Completed');
+        expect(badge.attributes('aria-label')).toBe('Completed');
+        expect(badge.text()).toBe('');
     });
 });

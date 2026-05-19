@@ -56,6 +56,8 @@ const displayText = computed(() => {
         : label;
 });
 
+const buttonLabel = computed(() => `Appointment status: ${displayText.value}`);
+
 const badgeClasses = computed(() => [
     'badge',
     `badge--${props.status}`,
@@ -70,17 +72,39 @@ const handleClick = () => {
 </script>
 
 <template>
-    <span
-        :class="badgeClasses"
-        :title="props.compact ? displayText : undefined"
-        :aria-label="displayText"
-        role="status"
+    <button
+        type="button"
+        class="badge-button"
+        :aria-label="buttonLabel"
         @click="handleClick"
-        >{{ props.compact ? '' : displayText }}</span
     >
+        <span
+            :class="badgeClasses"
+            :title="props.compact ? displayText : undefined"
+            :aria-label="displayText"
+            role="status"
+        >
+            <span v-if="!props.compact">{{ displayText }}</span>
+        </span>
+    </button>
 </template>
 
 <style scoped>
+.badge-button {
+    display: inline-flex;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: pointer;
+}
+
+.badge-button:focus-visible {
+    outline: 2px solid #1d4ed8;
+    outline-offset: 2px;
+    border-radius: 9999px;
+}
+
 .badge {
     display: inline-flex;
     align-items: center;
@@ -90,7 +114,6 @@ const handleClick = () => {
     font-size: 0.875rem;
     line-height: 1;
     color: #ffffff;
-    cursor: pointer;
 }
 
 .badge--compact {
