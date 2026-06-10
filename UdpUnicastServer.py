@@ -1,5 +1,6 @@
 import socket
 import time
+import threading
 
 SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 5007
@@ -12,6 +13,13 @@ sock.bind((SERVER_HOST, SERVER_PORT))
 
 clientes = []
 clientes_registrados = set()
+
+def enviar_atualizacoes(cliente):
+    for numero in range(1, TOTAL_ATUALIZACOES + 1):
+        mensagem = f"Atualizacao {numero}"
+        sock.sendto(mensagem.encode(), cliente)
+        print(f"Enviado para {cliente}: {mensagem}")
+        time.sleep(INTERVALO_ENTRE_ATUALIZACOES)
 
 print(
     f"Servidor UDP unicast iniciado em {SERVER_HOST}:{SERVER_PORT}. "
@@ -38,12 +46,16 @@ try:
 
     print("Quantidade minima de clientes atingida. Enviando atualizacoes...")
 
-    for numero in range(1, TOTAL_ATUALIZACOES + 1):
-        mensagem = f"Atualizacao {numero}"
-        for cliente in clientes:
-            sock.sendto(mensagem.encode(), cliente)
-            print(f"Enviado para {cliente}: {mensagem}")
-        time.sleep(INTERVALO_ENTRE_ATUALIZACOES)
+    threads = []
+    for cliente in clientes:
+        t = threading.Thread(target=enviar_atualizacoes, args=(cliente,))
+        threads.append(t)
+
+    for t in threads:
+        t.start()
+
+    for t in threads:
+        t.join()
 
 except KeyboardInterrupt:
     print("\nServidor encerrado.")
